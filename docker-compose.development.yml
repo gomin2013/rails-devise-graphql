@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:12.1-alpine
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - 5432:5432
+    container_name: postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: api
+    environment:
+      - RAILS_ENV=development
+      - RAILS_MASTER_KEY
+    ports:
+      - 3000:3000
+    container_name: api
+    volumes:
+      - .:/rails-devise-graphql
+      - bundle:/bundle
+    depends_on:
+      - postgres
+    tty: true
+    stdin_open: true
+
+#  web:
+#    build:
+#      context: web
+#    environment:
+#      - HOST=0.0.0.0
+#      - APOLLO_API_URL=http://dev.rails-devise-graphql:3000/graphql
+#    ports:
+#      - 80:3000
+#    container_name: web
+#    volumes:
+#      - .:/rails-devise-graphql
+#      - node_modules:/rails-devise-graphql/web/node_modules
+
+volumes:
+  postgres_data:
+    driver: local
+  bundle:
+    driver: local
+  node_modules:
+    driver: local
